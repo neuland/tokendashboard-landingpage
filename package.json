@@ -2,7 +2,7 @@
   "name": "tokendashboard-landingpage",
   "version": "0.1.0",
   "private": true,
-  "license": "MIT",
+  "license": "UNLICENSED",
   "description": "Central documentation site for the neuland Token & CO₂ Dashboard — frontend, backend and the usage-reporting plugins.",
   "repository": {
     "type": "git",

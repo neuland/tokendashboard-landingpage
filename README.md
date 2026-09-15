@@ -107,5 +107,6 @@ SITE_URL=https://<owner>.github.io SITE_BASE=/<repo>/ npm run build
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Screenshots and the logo are part of this repository and
-covered by the same licence.
+All rights reserved — see [LICENSE](LICENSE). The source is public for transparency, not for
+reuse. The dashboard itself (frontend, backend, plugins) is MIT-licensed in its own
+repositories. The neuland name and logo are covered by [TRADEMARKS.md](TRADEMARKS.md).
