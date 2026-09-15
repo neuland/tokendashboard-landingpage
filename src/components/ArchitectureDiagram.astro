@@ -1,0 +1,146 @@
+---
+// Data-flow diagram as HTML/CSS grid: three columns on wide screens, one stacked column on
+// narrow ones — the arrows between them turn downwards, so nothing scrolls horizontally.
+const tools = [
+  { name: 'Claude Code', plugin: 'tokendashboard-plugin-claude', color: 'var(--provider-claude)', how: 'hooks read the transcript per turn' },
+  { name: 'GitHub Copilot CLI', plugin: 'tokendashboard-plugin-copilot', color: 'var(--provider-copilot)', how: 'waits for session.shutdown' },
+  { name: 'OpenCode', plugin: 'tokendashboard-plugin-opencode', color: 'var(--provider-opencode)', how: 'one entry per assistant message' },
+];
+---
+
+<div class="arch" role="img" aria-label="Data flow: plugins in Claude Code, Copilot CLI and OpenCode write token counts to a local queue and POST them to the backend's ingest endpoints. The Kotlin backend deduplicates, applies prices and CO₂ factors, stores everything in Postgres, and serves aggregated GET endpoints that the static Astro frontend renders in the browser.">
+  <span class="arch__title arch__title--1">Developer machines</span>
+  <div class="arch__col arch__col--1">
+    <div class="arch__tools">
+      {tools.map((t) => (
+        <div class="tool" style={`--c: ${t.color}`}>
+          <div class="tool__text">
+            <strong>{t.name}</strong>
+            <code>{t.plugin}</code>
+            <span>{t.how}</span>
+          </div>
+          <div class="tool__queue" aria-hidden="true"><i></i><i></i><i></i><span>queue</span></div>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <div class="arch__arrow arch__arrow--1" aria-hidden="true">
+    <span>HTTPS · batched</span>
+    <svg viewBox="0 0 48 16"><path d="M0 8 H40" /><path d="M36 3 L44 8 L36 13" /></svg>
+  </div>
+
+  <span class="arch__title arch__title--2">Backend</span>
+  <div class="arch__col arch__col--2">
+    <div class="backend">
+      <strong>Kotlin · Ktor · Postgres</strong>
+      <code class="slot">POST /api/usage/<wbr />ingest/<wbr />&#123;provider&#125;</code>
+      <ol>
+        <li>validate · deduplicate</li>
+        <li>price per model &amp; token type</li>
+        <li>apply CO₂ factor</li>
+        <li>store token counts, cost, CO₂</li>
+      </ol>
+      <div class="slot slot--db">
+        <code>postgres</code>
+        <span>usage · prices · co2_factors · installations (uuid only)</span>
+      </div>
+      <code class="slot slot--out">GET /api/<wbr />usage/*/v1</code>
+      <span class="backend__note">also: GET /api/prices/claude → statusline prices</span>
+    </div>
+  </div>
+
+  <div class="arch__arrow arch__arrow--2 arch__arrow--accent" aria-hidden="true">
+    <span>JSON</span>
+    <svg viewBox="0 0 48 16"><path d="M0 8 H40" /><path d="M36 3 L44 8 L36 13" /></svg>
+  </div>
+
+  <span class="arch__title arch__title--3">Dashboard</span>
+  <div class="arch__col arch__col--3">
+    <div class="frontend">
+      <strong>Astro + React</strong>
+      <span>static build, served by nginx</span>
+      <span>same origin as /api → no CORS</span>
+      <div class="slot slot--light">overview · per provider · by model &amp; token type · FAQ</div>
+    </div>
+  </div>
+
+  <p class="arch__foot">Only token counts, a session id and a random installation UUID leave the machine. No prompts, no usernames.</p>
+</div>
+
+<style>
+  .arch {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) auto minmax(0, 1.05fr) auto minmax(0, 0.8fr);
+    grid-template-rows: auto 1fr;
+    gap: 8px 12px;
+    align-items: center;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--ink-2);
+  }
+  .arch__title--1 { grid-area: 1 / 1; }
+  .arch__title--2 { grid-area: 1 / 3; }
+  .arch__title--3 { grid-area: 1 / 5; }
+  .arch__col--1 { grid-area: 2 / 1; }
+  .arch__arrow--1 { grid-area: 2 / 2; }
+  .arch__col--2 { grid-area: 2 / 3; }
+  .arch__arrow--2 { grid-area: 2 / 4; }
+  .arch__col--3 { grid-area: 2 / 5; }
+  /* every box is centred on the row's middle line, which is where the arrows sit */
+  .arch__col { display: grid; gap: 10px; align-self: center; }
+  .arch__title { align-self: end; }
+  .arch__title { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+
+  /* tools */
+  .arch__tools { display: grid; gap: 10px; }
+  .tool { display: flex; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-left: 4px solid var(--c); border-radius: 8px; background: var(--bg); }
+  .tool__text { display: grid; gap: 2px; min-width: 0; }
+  .tool__text strong { font-size: 15px; color: var(--ink); }
+  .tool__text code { font-size: 11.5px; background: none; padding: 0; color: var(--ink-2); overflow-wrap: break-word; }
+  .tool__text span { color: var(--ink-3); }
+  .tool__queue { display: grid; gap: 3px; justify-items: center; align-content: start; flex-shrink: 0; }
+  .tool__queue i { display: block; width: 24px; height: 7px; border-radius: 2px; background: var(--c); }
+  .tool__queue i:nth-child(2) { opacity: 0.6; }
+  .tool__queue i:nth-child(3) { opacity: 0.3; }
+  .tool__queue span { font-size: 10px; color: var(--ink-4); margin-top: 2px; }
+
+  /* arrows */
+  /* The svg alone defines the arrow's box, so its shaft sits exactly on the row's centre
+     line; the label is positioned around it and does not shift it. */
+  .arch__arrow { position: relative; display: flex; justify-content: center; align-items: center; min-width: 104px; padding: 0 6px; color: var(--ink-4); font-size: 11px; }
+  .arch__arrow span { position: absolute; bottom: calc(100% + 4px); left: 0; right: 0; text-align: center; }
+  .arch__arrow svg { width: 48px; height: 16px; fill: none; stroke: var(--ink-4); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  .arch__arrow--accent svg { stroke: var(--accent); stroke-width: 2; }
+  .arch__arrow--accent span { color: var(--accent-dark); }
+
+  /* backend */
+  .backend { display: grid; gap: 10px; padding: 16px; border-radius: 10px; background: var(--ink); color: rgba(255,255,255,0.75); }
+  .backend strong { font-size: 15px; color: #fff; }
+  .backend ol { margin: 0; padding-left: 1.3em; display: grid; gap: 3px; }
+  .backend ol li { margin: 0; }
+  .slot { display: block; padding: 8px 10px; border-radius: 6px; background: rgba(255,255,255,0.08); color: #fff; font-size: 12px; overflow-wrap: normal; } /* breaks only at the <wbr> after slashes */
+  .slot--db { display: grid; gap: 2px; }
+  .slot--db code { background: none; padding: 0; color: #fff; font-size: 12px; }
+  .slot--db span { font-size: 11px; color: rgba(255,255,255,0.65); }
+  .slot--out { background: rgba(14, 161, 156, 0.35); }
+  .backend__note { font-size: 11px; color: rgba(255,255,255,0.55); }
+
+  /* frontend */
+  .frontend { display: grid; gap: 6px; padding: 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink-3); }
+  .frontend strong { font-size: 15px; color: var(--ink); }
+  .slot--light { background: var(--bg-band); color: var(--ink-2); margin-top: 6px; }
+
+  .arch__foot { grid-column: 1 / -1; margin: 6px 0 0; font-size: 12px; color: var(--ink-3); }
+  @media (max-width: 1150px) and (min-width: 1024px) { .slot, .slot--db code { font-size: 11px; } .tool__text code { font-size: 10.5px; } }
+
+  @media (max-width: 1023px) {
+    .arch { grid-template-columns: 1fr; grid-template-rows: none; gap: 14px; }
+    .arch__title--1, .arch__title--2, .arch__title--3, .arch__col--1, .arch__col--2, .arch__col--3, .arch__arrow--1, .arch__arrow--2 { grid-area: auto; }
+    .arch__title { align-self: start; margin-bottom: -6px; }
+    .arch__arrow { height: 48px; min-width: 0; }
+    .arch__arrow span { bottom: auto; right: auto; left: calc(50% + 20px); top: 50%; transform: translateY(-50%); white-space: nowrap; }
+    .arch__arrow svg { transform: rotate(90deg); }
+    .tool__queue { display: none; }
+  }
+</style>

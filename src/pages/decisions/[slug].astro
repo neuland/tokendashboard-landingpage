@@ -1,0 +1,66 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '~/layouts/Layout.astro';
+import { AREA_LABEL } from '~/lib/decisions';
+
+export async function getStaticPaths() {
+  const decisions = await getCollection('decisions');
+  return decisions.map((decision) => ({ params: { slug: decision.id }, props: { decision } }));
+}
+
+const { decision } = Astro.props;
+const { Content } = await render(decision);
+const { number, title, summary, area, sourceUrl } = decision.data;
+const base = import.meta.env.BASE_URL;
+---
+
+<Layout title={title} description={summary}>
+  <article class="section">
+    <div class="container decision-page">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <a href={base}>Start</a> <span aria-hidden="true">/</span>
+        <a href={`${base}decisions/`}>Decisions</a>
+      </nav>
+
+      <header class="head">
+        <div class="meta">
+          <span class="pill">{AREA_LABEL[area]}</span>
+          <span>Backend decision {number}</span>
+        </div>
+        <h1>{title}</h1>
+      </header>
+
+      <div class="body">
+        <div class="prose">
+          <Content />
+        </div>
+        <aside class="side">
+          <h2>Recorded in</h2>
+          <p><a href={sourceUrl} rel="noopener">Backend decision log, entry {number}</a></p>
+          <p class="side__note">This page is generated from that log at build time.</p>
+        </aside>
+      </div>
+
+      <footer class="foot">
+        <a class="link-arrow" href={`${base}decisions/`}>All decisions</a>
+      </footer>
+    </div>
+  </article>
+</Layout>
+
+<style>
+  .decision-page { max-width: 1040px; }
+  .crumbs { font-size: var(--t-micro); color: var(--ink-4); margin-bottom: var(--space-md); display: flex; gap: 8px; }
+  .crumbs a { color: var(--ink-3); text-decoration: none; }
+  .crumbs a:hover { color: var(--ink); }
+  .head { max-width: 780px; margin-bottom: var(--space-md); }
+  .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; font-size: var(--t-micro); color: var(--ink-4); margin-bottom: 20px; }
+  .body { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: var(--space-lg); align-items: start; }
+  .side { position: sticky; top: 88px; padding: 20px; border-radius: var(--radius); background: var(--bg-band); font-size: var(--t-small); }
+  .side h2 { font-size: var(--t-micro); font-weight: 600; color: var(--ink-3); margin-bottom: 10px; }
+  .side ul { list-style: none; margin: 0; padding: 0; }
+  .side p { margin: 0; }
+  .side__note { margin-top: 10px !important; color: var(--ink-4); font-size: var(--t-micro); }
+  .foot { margin-top: var(--space-lg); padding-top: var(--space-sm); border-top: 1px solid var(--line); }
+  @media (max-width: 860px) { .body { grid-template-columns: 1fr; } .side { position: static; } }
+</style>

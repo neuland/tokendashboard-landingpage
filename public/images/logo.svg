@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 64" width="420" height="64" role="img" aria-labelledby="t">
+  <title id="t">Token &amp; CO₂ Dashboard</title>
+  <g fill="#FF5A55">
+    <rect x="6"  y="48" width="14" height="10" rx="3"/>
+    <rect x="6"  y="36" width="14" height="10" rx="3"/>
+    <rect x="6"  y="24" width="14" height="10" rx="3"/>
+    <rect x="6"  y="12" width="14" height="10" rx="3"/>
+  </g>
+  <g fill="#77C4B4">
+    <rect x="25" y="48" width="14" height="10" rx="3"/>
+    <rect x="25" y="36" width="14" height="10" rx="3"/>
+  </g>
+  <g fill="#0EA19C">
+    <rect x="44" y="48" width="14" height="10" rx="3"/>
+    <rect x="44" y="36" width="14" height="10" rx="3"/>
+    <rect x="44" y="24" width="14" height="10" rx="3"/>
+  </g>
+  <text x="76" y="41" font-family="'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="-0.6" fill="#1E2433">Token &amp; <tspan fill="#0EA19C">CO₂</tspan> Dashboard</text>
+</svg>

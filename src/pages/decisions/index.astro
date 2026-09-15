@@ -1,0 +1,44 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '~/layouts/Layout.astro';
+import DecisionCard from '~/components/DecisionCard.astro';
+import { AREAS, DECISIONS_LOG_URL } from '~/lib/decisions';
+
+const decisions = (await getCollection('decisions')).sort((a, b) => a.data.number - b.data.number);
+---
+
+<Layout title="Decisions" description="The domain decisions behind the Token & CO₂ Dashboard: how tokens, cost and CO₂ are calculated, what is measured and what is left out, what is stored — and why.">
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <h1>Decisions</h1>
+        <p class="lede">
+          How the numbers are calculated, what is measured and what is deliberately left out,
+          what is stored about whom — and why it was decided that way. Generated from the
+          <a href={DECISIONS_LOG_URL} rel="noopener">backend's decision log</a>.
+        </p>
+      </div>
+
+      {AREAS.map((area) => {
+        const items = decisions.filter((d) => d.data.area === area.id);
+        if (items.length === 0) return null;
+        return (
+          <section class="group" aria-labelledby={`area-${area.id}`}>
+            <div class="group__head">
+              <h2 id={`area-${area.id}`}>{area.label}</h2>
+              <p>{area.lede}</p>
+            </div>
+            <div class="grid grid--3">{items.map((d) => <DecisionCard decision={d} />)}</div>
+          </section>
+        );
+      })}
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .group { margin-top: var(--space-lg); }
+  .group__head { max-width: 720px; margin-bottom: var(--space-md); }
+  .group__head h2 { margin-bottom: 8px; }
+  .group__head p { color: var(--ink-3); }
+</style>

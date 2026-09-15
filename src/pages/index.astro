@@ -1,0 +1,381 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '~/layouts/Layout.astro';
+import Screenshot from '~/components/Screenshot.astro';
+import RepoCard from '~/components/RepoCard.astro';
+import DecisionCard from '~/components/DecisionCard.astro';
+import ArchitectureDiagram from '~/components/ArchitectureDiagram.astro';
+import { REPOS, PLUGINS } from '~/lib/repos';
+import { SITE } from '~/lib/site';
+
+const base = import.meta.env.BASE_URL;
+const decisions = (await getCollection('decisions')).sort((a, b) => a.data.number - b.data.number);
+// One decision per area on the start page; the full list lives on /decisions/.
+const featuredDecisions = ['calculation', 'privacy', 'architecture']
+  .map((area) => decisions.find((d) => d.data.area === area))
+  .filter((d) => d !== undefined);
+---
+
+<Layout anchorNav>
+  <!-- ============================================================ HERO -->
+  <section class="hero">
+    <div class="container hero__inner">
+      <div class="hero__copy">
+        <h1 class="hero__title">See what your AI coding agents really consume.</h1>
+        <p class="hero__lede">
+          Tokens, cost and an estimate of CO₂ — company-wide, across Claude Code, GitHub Copilot
+          and OpenCode. Open source, self-hosted, and unable to attribute usage to a person.
+        </p>
+        <div class="hero__actions">
+          <a class="button button--primary" href="#how-it-works">How it works</a>
+          <a class="button button--ghost" href={SITE.github} rel="noopener">GitHub</a>
+        </div>
+      </div>
+      <div class="hero__shot">
+        <Screenshot src="overview-full.png" width={2560} height={4008}
+          alt="The dashboard's overview page: company-wide totals for tokens, CO₂ and cost, a trend chart by provider and a comparison table." />
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ WHY -->
+  <section id="why" class="section section--band">
+    <div class="container">
+      <div class="section-head">
+        <h2>Why</h2>
+        <p class="lede">Coding agents run all day. The tools themselves don't say what that costs.</p>
+      </div>
+      <div class="grid grid--3">
+        <div class="block">
+          <h3>Subscriptions hide the tokens</h3>
+          <p>Seat-based plans expose no usage API. The counts exist only inside each developer's CLI.</p>
+        </div>
+        <div class="block">
+          <h3>Cost and carbon, one pipeline</h3>
+          <p>Both derive from the same raw token counts — so one system should produce both.</p>
+        </div>
+        <div class="block">
+          <h3>Visibility without surveillance</h3>
+          <p>The dashboard counts installations and aggregates usage. It cannot attribute a token to a person or a team.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ HOW IT WORKS -->
+  <section id="how-it-works" class="section">
+    <div class="container">
+      <div class="section-head">
+        <h2>How it works</h2>
+        <p class="lede">Plugins push, the backend prices, the frontend shows. Nothing polls a provider.</p>
+      </div>
+      <div class="card diagram-card"><ArchitectureDiagram /></div>
+      <div class="grid grid--4 steps">
+        <div class="block">
+          <h4>1 · Capture</h4>
+          <p>A plugin hooks into the CLI's lifecycle and reads the token usage the tool already knows: input, output, cache write, cache read — per model.</p>
+        </div>
+        <div class="block">
+          <h4>2 · Queue &amp; forward</h4>
+          <p>Entries go to a local queue first and are sent in batches when the backend is reachable. Off-VPN, nothing is lost and nothing blocks.</p>
+        </div>
+        <div class="block">
+          <h4>3 · Ingest &amp; enrich</h4>
+          <p>The backend deduplicates, applies per-model prices and CO₂ factors, and stores counts, cost and CO₂ in Postgres.</p>
+        </div>
+        <div class="block">
+          <h4>4 · Visualise</h4>
+          <p>The static frontend renders totals, comparisons and time series for any date range — in German or English.</p>
+        </div>
+      </div>
+      <p class="how__note">
+        <strong>Sent:</strong> token counts, session id, timestamp, a random installation UUID.
+        <strong>Never sent:</strong> prompt content, usernames, hostnames.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ COMPONENTS -->
+  <section id="components" class="section section--band">
+    <div class="container">
+      <div class="section-head">
+        <h2>Components</h2>
+        <p class="lede">Five repositories. They meet at the backend's ingest and query endpoints.</p>
+      </div>
+      <div class="grid grid--2 components">
+        {REPOS.filter((r) => r.kind !== 'plugin').map((repo) => <RepoCard repo={repo} />)}
+      </div>
+      <div class="grid grid--3 components">
+        {PLUGINS.map((repo) => <RepoCard repo={repo} />)}
+      </div>
+      <details class="contract">
+        <summary>Want to track another tool? The ingest contract.</summary>
+        <div class="contract__body">
+          <p>
+            A plugin is anything that POSTs this shape. Ingest routes are unversioned and
+            additive-only, so a plugin written today keeps working. New providers also need a
+            price table and, ideally, a CO₂ factor on the backend side.
+          </p>
+          <pre><code>{`POST /api/usage/ingest/<provider>
+{
+  "user_id": "<random uuid, generated once per installation>",
+  "prompts": [{
+    "timestamp":  "2026-09-15T10:00:00.000Z",
+    "session_id": "…",
+    "model":      "claude-sonnet-5",
+    "usage": { "input_tokens": 1234, "output_tokens": 567,
+               "cache_creation_input_tokens": 0, "cache_read_input_tokens": 890 }
+  }]
+}`}</code></pre>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============================================================ TOUR -->
+  <section id="tour" class="section">
+    <div class="container">
+      <div class="section-head section-head--center">
+        <h2>The dashboard</h2>
+        <p class="lede">A company-wide overview and one page per provider. Screenshots show demo data.</p>
+      </div>
+      <div class="tour">
+        <div class="tour__row">
+          <Screenshot src="overview-kpis.png" width={2320} height={280}
+            alt="Three KPI cards: Total tokens 338.6 M, Total CO₂ 64.5 kg, Total cost 5,130.24 $." />
+          <div class="block">
+            <h3>Company-wide totals</h3>
+            <p>Tokens, estimated CO₂ and estimated cost for the selected period. Total tokens counts input and output only — cache tokens are shown separately so they don't drown the trend.</p>
+          </div>
+        </div>
+        <div class="tour__row">
+          <Screenshot src="overview-history-chart.png" width={2320} height={846}
+            alt="Stacked bar chart of daily token usage, one colour per provider, with weekends shaded." />
+          <div class="block">
+            <h3>Trend by provider</h3>
+            <p>One stacked bar per day or week, one segment per provider. Switch the view to CO₂, cost or active installations; toggle providers; weekends are shaded.</p>
+          </div>
+        </div>
+        <div class="tour__row">
+          <Screenshot src="overview-range-picker.png" width={2560} height={1800}
+            alt="The date range picker, open, with groups To date, Previous period, Last days and a custom range." />
+          <div class="block">
+            <h3>Shareable time ranges</h3>
+            <p>Presets like "this month" or "last 30 days" live in the URL, so a bookmarked "this week" still means this week next Monday.</p>
+          </div>
+        </div>
+        <div class="tour__row">
+          <Screenshot src="provider-claude-plugin-panel.png" width={2320} height={412}
+            alt="Plugin panel showing 40 active plugin installations and a copyable npx install command." />
+          <div class="block">
+            <h3>Installations and the install command</h3>
+            <p>Each provider page shows how many plugin installations reported in the last four weeks, and the install command with the operator's URLs filled in. Installations are counted, never people.</p>
+          </div>
+        </div>
+        <div class="tour__row">
+          <Screenshot src="provider-claude-model-chart.png" width={2320} height={1348}
+            alt="Stacked bars per model family and a table breaking down tokens, CO₂ and cost per model." />
+          <div class="block">
+            <h3>By model and token type</h3>
+            <p>Input, output, cache write and cache read per model family — where cache reads become visible in their true proportion.</p>
+          </div>
+        </div>
+        <div class="tour__row">
+          <Screenshot src="statusline-claude.png" width={1960} height={482}
+            alt="A terminal with the two-line statusline: model, session tokens, a synced dot, context window bar, plugin version, up/down tokens and $0.03." />
+          <div class="block">
+            <h3>Feedback in the terminal</h3>
+            <p>The plugins install a statusline: model, session tokens, sync state, context window and an estimated price. Illustrative rendering of the real output.</p>
+          </div>
+        </div>
+        <div class="tour__row">
+          <Screenshot src="faq-viewport.png" width={2560} height={1800}
+            alt="The FAQ page with a table of contents and answers on provider coverage, total tokens and CO₂ calculation." />
+          <div class="block">
+            <h3>Methodology in the FAQ</h3>
+            <p>Every estimate carries an asterisk that links here: how CO₂ is derived, how costs are computed, what data exists about installations.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ CONCEPTS -->
+  <section id="concepts" class="section section--band">
+    <div class="container">
+      <div class="section-head">
+        <h2>Concepts</h2>
+        <p class="lede">The numbers, and what stands behind them. Details live in the repositories.</p>
+      </div>
+      <div class="grid grid--3 concepts">
+        <div class="block">
+          <h3>Four token types</h3>
+          <p>Input, output, cache write, cache read. All four are stored; only input and output form the headline total, because cache reads outnumber everything else by an order of magnitude.</p>
+        </div>
+        <div class="block">
+          <h3>Cost in USD</h3>
+          <p>A price table per model and token type, applied at ingest. Estimates for trend visibility, not billing. Copilot is approximated at one cent per AI unit.</p>
+        </div>
+        <div class="block">
+          <h3>CO₂: 840 g per million output-equivalent tokens</h3>
+          <p>Derived from Jegham et al. for Claude 3.7 Sonnet; input weighted at 1/20 of output, cache reads at 1 %. An order-of-magnitude estimate, not GHG accounting. <a href="https://github.com/neuland/tokendashboard-backend#derivation-of-co%E2%82%82-factors-for-claude" rel="noopener">Derivation</a></p>
+        </div>
+        <div class="block">
+          <h3>Anonymous by construction</h3>
+          <p>Usage data carries no identifier at all. The only UUID is random, per installation, never derived from a name, and used solely to count active installations. No prompt content, no authentication, VPN only. <a href="https://github.com/neuland/tokendashboard-backend/blob/main/SECURITY.md" rel="noopener">Security model</a></p>
+        </div>
+        <div class="block">
+          <h3>Store-and-forward</h3>
+          <p>Plugins queue locally and flush in batches at session boundaries. Transient errors retry; entries expire after 30 days. <a href="https://github.com/neuland/tokendashboard-plugin-claude/tree/main/docs/decisions" rel="noopener">Plugin ADRs</a></p>
+        </div>
+        <div class="block">
+          <h3>Self-update, explicit trust</h3>
+          <p>Once a day each plugin fetches its updater from a URL the operator chose at install time. HTTPS only, no redirects. <a href="https://github.com/neuland/tokendashboard-backend/blob/main/docs/decisions.md" rel="noopener">Decision log</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ DECISIONS -->
+  <section id="decisions" class="section section--ink">
+    <div class="container">
+      <div class="section-head">
+        <h2>Decisions</h2>
+        <p class="lede">How the numbers are calculated, what is left out, what is stored — and why.</p>
+      </div>
+      <div class="grid grid--3">
+        {featuredDecisions.map((d) => <DecisionCard decision={d} />)}
+      </div>
+      <div class="decisions__actions">
+        <a class="button button--primary" href={`${base}decisions/`}>All {decisions.length} decisions</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ GET STARTED -->
+  <section id="get-started" class="section">
+    <div class="container">
+      <div class="section-head">
+        <h2>Get started</h2>
+        <p class="lede">Someone operates the backend and frontend. Every developer installs a plugin.</p>
+      </div>
+      <div class="grid grid--2 start">
+        <div class="card">
+          <span class="pill pill--ink">Operators</span>
+          <h3>Deploy backend and frontend</h3>
+          <ol>
+            <li>Run the backend (Kotlin/Ktor, Dockerfile provided) with a Postgres. Seed prices and CO₂ factors.</li>
+            <li>Build the frontend with your <code>PUBLIC_*</code> variables; serve it and route <code>/api</code> to the backend on the same origin.</li>
+            <li>Put both behind your VPN — there is no authentication by design.</li>
+          </ol>
+          <p class="start__links">
+            <a href="https://github.com/neuland/tokendashboard-backend#readme" rel="noopener">Backend README</a> ·
+            <a href="https://github.com/neuland/tokendashboard-frontend#readme" rel="noopener">Frontend README</a> ·
+            <a href="https://github.com/neuland/tokendashboard-backend/tree/main/examples" rel="noopener">Deployment examples</a>
+          </p>
+        </div>
+        <div class="card">
+          <span class="pill pill--accent">Developers</span>
+          <h3>Install a plugin</h3>
+          <p>Copy the command from your dashboard's provider page, or adapt one of these. Both flags are required.</p>
+          {PLUGINS.map((p) => (
+            <div class="start__cmd">
+              <span class="start__cmd-label" style={`--c: var(--provider-${p.provider})`}><i aria-hidden="true"></i>{p.title}</span>
+              <pre><code>{p.install}</code></pre>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ CONTRIBUTE -->
+  <section id="contribute" class="section section--band">
+    <div class="container">
+      <div class="section-head">
+        <h2>Contribute</h2>
+        <p class="lede">Bugs and features go to the repository they concern.</p>
+      </div>
+      <ul class="contribute">
+        {REPOS.map((r) => (
+          <li>
+            <a href={r.url} rel="noopener"><code>{r.name}</code></a>
+            <span>{r.tagline}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* ---- hero ---- */
+  .hero { padding-block: var(--space-xl) var(--space-lg); overflow: hidden; }
+  .hero__inner { display: grid; gap: var(--space-lg); grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); align-items: center; }
+  .hero__title { font-size: var(--t-display); letter-spacing: -0.03em; line-height: 1.05; }
+  .hero__lede { font-size: var(--t-lede); line-height: 1.5; color: var(--ink-3); margin: 24px 0 32px; max-width: 30em; }
+  .hero__actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .hero__shot { position: relative; }
+  .hero__shot :global(.shot) { max-height: 560px; }
+  .hero__shot :global(.shot img) { object-fit: cover; object-position: top; height: 100%; }
+  .hero__shot::after { content: ''; position: absolute; inset: auto 0 0 0; height: 140px; pointer-events: none; background: linear-gradient(to bottom, rgba(255,255,255,0), var(--bg)); }
+
+  /* ---- how ---- */
+  .diagram-card { padding: 24px; margin-bottom: var(--space-lg); }
+  @media (max-width: 720px) { .diagram-card { padding: 16px; } }
+  .how__note { margin-top: var(--space-lg); color: var(--ink-3); font-size: var(--t-small); max-width: 760px; }
+  .how__note strong { margin-right: 4px; }
+  .how__note strong + strong { margin-left: 16px; }
+
+  /* ---- components ---- */
+  .components { margin-bottom: var(--space-md); }
+  .contract { margin-top: var(--space-sm); }
+  .contract summary { cursor: pointer; font-weight: 600; color: var(--ink); padding: 14px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); list-style: none; display: flex; justify-content: space-between; align-items: center; }
+  .contract summary::-webkit-details-marker { display: none; }
+  .contract summary::after { content: '+'; font-size: 22px; color: var(--ink-3); line-height: 1; }
+  .contract[open] summary::after { content: '−'; }
+  .contract__body { display: grid; gap: var(--space-sm); padding-top: var(--space-sm); color: var(--ink-3); }
+
+  /* ---- tour ---- */
+  .tour { display: grid; gap: var(--space-xl); }
+  .tour__row { display: grid; gap: var(--space-lg); grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); align-items: center; }
+  .tour__row:nth-child(even) :global(.shot) { order: 2; }
+  .tour__row .block h3 { margin-bottom: 10px; }
+  .tour__row .block p { font-size: 17px; }
+
+  /* ---- concepts ---- */
+  .concepts { row-gap: var(--space-lg); }
+  .concepts .block p a { white-space: nowrap; }
+
+  /* ---- decisions ---- */
+  .decisions__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: var(--space-lg); }
+
+  /* ---- get started ---- */
+  .start .card { display: flex; flex-direction: column; gap: 14px; }
+  .start .card > .pill { align-self: flex-start; }
+  .start ol { margin: 0; padding-left: 1.2em; color: var(--ink-3); font-size: 16px; }
+  .start ol li + li { margin-top: 8px; }
+  .start__links { font-size: var(--t-small); margin-top: auto; }
+  .start__cmd { display: grid; gap: 8px; }
+  .start__cmd-label { display: inline-flex; align-items: center; gap: 8px; font-size: var(--t-micro); font-weight: 600; color: var(--ink-2); }
+  .start__cmd-label i { width: 8px; height: 8px; border-radius: 50%; background: var(--c, var(--ink-3)); }
+  .start__cmd pre { font-size: 12px; }
+
+  /* ---- contribute ---- */
+  .contribute { list-style: none; margin: 0; padding: 0; display: grid; }
+  .contribute li { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 8px 24px; margin: 0; padding: 14px 0; border-top: 1px solid var(--line); font-size: var(--t-small); color: var(--ink-3); }
+  .contribute li:last-child { border-bottom: 1px solid var(--line); }
+  .contribute li > a { text-decoration: none; font-weight: 600; }
+  .contribute li > a code { background: none; padding: 0; color: var(--ink); font-size: 14px; }
+
+  @media (max-width: 900px) {
+    .hero__inner { grid-template-columns: 1fr; }
+    .hero__shot :global(.shot) { max-height: 420px; }
+    .tour { gap: 0; }
+    .tour__row { grid-template-columns: 1fr; gap: var(--space-sm); padding-block: var(--space-md); border-top: 1px solid var(--line); }
+    .tour__row:first-child { border-top: 0; padding-top: 0; }
+    .tour__row :global(.shot) { order: 2; }
+    .tour__row .block h3 { margin-bottom: 6px; }
+    .contribute li { grid-template-columns: 1fr; }
+  }
+</style>

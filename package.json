@@ -1,0 +1,30 @@
+{
+  "name": "tokendashboard-landingpage",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "description": "Central documentation site for the neuland Token & CO₂ Dashboard — frontend, backend and the usage-reporting plugins.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neuland/tokendashboard-landingpage.git"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.6.0",
+    "astro": "^7.2.10"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "typescript": "^6.0.3"
+  }
+}

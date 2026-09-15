@@ -1,0 +1,17 @@
+---
+import Layout from '~/layouts/Layout.astro';
+const base = import.meta.env.BASE_URL;
+---
+
+<Layout title="Not found">
+  <section class="section">
+    <div class="container" style="max-width: 640px;">
+      <span class="pill">404</span>
+      <h1>Nothing here.</h1>
+      <p style="color: var(--ink-3); margin-top: 14px;">
+        This page does not exist — or the page it pointed to was renamed. Try the
+        <a href={base}>start page</a> or the <a href={`${base}decisions/`}>decisions</a>.
+      </p>
+    </div>
+  </section>
+</Layout>

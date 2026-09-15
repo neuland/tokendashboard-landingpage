@@ -1,0 +1,34 @@
+---
+import type { Repo } from '~/lib/repos';
+import { PROVIDER_LABEL } from '~/lib/repos';
+
+interface Props { repo: Repo }
+const { repo } = Astro.props;
+const kindLabel = repo.provider ? `Plugin · ${PROVIDER_LABEL[repo.provider]}` : { frontend: 'Frontend', backend: 'Backend', plugin: 'Plugin' }[repo.kind];
+const accent = repo.provider ? `var(--provider-${repo.provider})` : 'var(--ink)';
+---
+
+<article class="card repo" id={`repo-${repo.id}`} style={`--repo-accent: ${accent}`}>
+  <span class="repo__kind">{kindLabel}</span>
+  <h3>{repo.title}</h3>
+  <p>{repo.description}</p>
+  <ul class="repo__stack" aria-label="Tech stack">
+    {repo.stack.map((s) => <li class="pill">{s}</li>)}
+  </ul>
+  <footer class="repo__links">
+    <a href={repo.url} rel="noopener">GitHub</a>
+    <a href={repo.readme} rel="noopener">README</a>
+    {repo.decisions && <a href={repo.decisions} rel="noopener">Decisions</a>}
+  </footer>
+</article>
+
+<style>
+  .repo { display: flex; flex-direction: column; gap: 12px; border-top: 4px solid var(--repo-accent); }
+  .repo__kind { font-size: var(--t-micro); font-weight: 600; color: var(--ink-3); }
+  .repo h3 { margin: 0; }
+  .repo__stack { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .repo__stack li { margin: 0; white-space: normal; font-weight: 500; }
+  .repo__links { margin-top: auto; padding-top: 14px; display: flex; gap: 18px; font-size: var(--t-small); font-weight: 600; }
+  .repo__links a { text-decoration: none; }
+  .repo__links a:hover { text-decoration: underline; }
+</style>

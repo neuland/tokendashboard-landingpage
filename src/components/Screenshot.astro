@@ -1,0 +1,19 @@
+---
+/** A screenshot with a soft shadow. `src` is relative to public/screenshots/. */
+interface Props {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+}
+const base = import.meta.env.BASE_URL;
+const { src, alt, width, height } = Astro.props;
+---
+
+<figure class="shot">
+  <img src={`${base}screenshots/${src}`} alt={alt} width={width} height={height} loading="lazy" decoding="async" />
+</figure>
+
+<style>
+  .shot { margin: 0; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-shot); background: var(--bg); }
+</style>
