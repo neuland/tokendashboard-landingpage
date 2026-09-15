@@ -24,6 +24,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # Creates the Pages site for this repository if it does not exist yet, so the first
+      # deployment does not depend on a manual click in Settings → Pages. On a plan that
+      # does not offer Pages for private repositories this step fails with a clear message.
+      - name: Enable GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - name: Install, build and upload the site
         uses: withastro/action@v5
         with:
