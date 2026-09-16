@@ -1,11 +1,11 @@
 import { defineConfig, fontProviders } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-// GitHub Pages serves a project site under `https://<owner>.github.io/<repo>/`. Both
-// values can be overridden at build time, so a fork deploys under its own name:
-//   SITE_URL=https://example.github.io SITE_BASE=/my-fork/ npm run build
-const site = process.env.SITE_URL ?? 'https://neuland.github.io';
-const base = process.env.SITE_BASE ?? '/tokendashboard-landingpage/';
+// Deployed via GitHub Pages under a custom domain, so the site lives at the root. Both
+// values can be overridden at build time, e.g. for a project-site deployment without a
+// custom domain:  SITE_URL=https://example.github.io SITE_BASE=/my-repo/ npm run build
+const site = process.env.SITE_URL ?? 'https://tokendashboard.neuland-bfi.de';
+const base = process.env.SITE_BASE ?? '/';
 
 export default defineConfig({
   site,

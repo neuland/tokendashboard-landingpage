@@ -1,7 +1,7 @@
 # Token & CO₂ Dashboard — website
 
 The central documentation site for the neuland Token & CO₂ Dashboard, published on GitHub
-Pages at <https://neuland.github.io/tokendashboard-landingpage/>. It explains how the five repositories
+Pages at <https://tokendashboard.neuland-bfi.de/>. It explains how the five repositories
 fit together, walks through the dashboard with screenshots, documents the concepts behind
 the numbers, and records the domain decisions behind them — how things are calculated, what
 is left out, what is stored — and why.
@@ -23,7 +23,7 @@ Requires Node.js ≥ 24 (see `.nvmrc`).
 
 ```bash
 npm install
-npm run dev       # http://localhost:4321/tokendashboard-landingpage/
+npm run dev       # http://localhost:4321/
 npm run build     # static site into dist/
 npm run preview   # serve dist/ locally
 npm run check     # astro check (type-checks .astro files)
@@ -96,8 +96,9 @@ Pushing to `main` runs [`.github/workflows/deploy.yml`](.github/workflows/deploy
 builds the site with `withastro/action` and publishes it with `actions/deploy-pages`. In the
 repository settings, *Pages → Source* must be set to **GitHub Actions** once.
 
-The site is configured for `https://neuland.github.io/tokendashboard-landingpage/`. A fork under another
-name builds with
+The site is configured for the custom domain `https://tokendashboard.neuland-bfi.de/` (set in the
+repository's Pages settings; `public/CNAME` keeps it). A deployment as a plain project site
+builds with
 
 ```bash
 SITE_URL=https://<owner>.github.io SITE_BASE=/<repo>/ npm run build
