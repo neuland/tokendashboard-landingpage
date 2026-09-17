@@ -1,19 +1,10 @@
 ---
-import { getCollection } from 'astro:content';
 import Layout from '~/layouts/Layout.astro';
 import Screenshot from '~/components/Screenshot.astro';
 import RepoCard from '~/components/RepoCard.astro';
-import DecisionCard from '~/components/DecisionCard.astro';
 import ArchitectureDiagram from '~/components/ArchitectureDiagram.astro';
 import { REPOS, PLUGINS } from '~/lib/repos';
 import { SITE } from '~/lib/site';
-
-const base = import.meta.env.BASE_URL;
-const decisions = (await getCollection('decisions')).sort((a, b) => a.data.number - b.data.number);
-// One decision per area on the start page; the full list lives on /decisions/.
-const featuredDecisions = ['calculation', 'privacy', 'architecture']
-  .map((area) => decisions.find((d) => d.data.area === area))
-  .filter((d) => d !== undefined);
 ---
 
 <Layout anchorNav>
@@ -200,24 +191,8 @@ const featuredDecisions = ['calculation', 'privacy', 'architecture']
     </div>
   </section>
 
-  <!-- ============================================================ DECISIONS -->
-  <section id="decisions" class="section section--ink">
-    <div class="container">
-      <div class="section-head">
-        <h2>Decisions</h2>
-        <p class="lede">How the numbers are calculated, what is left out, what is stored — and why.</p>
-      </div>
-      <div class="grid grid--3">
-        {featuredDecisions.map((d) => <DecisionCard decision={d} />)}
-      </div>
-      <div class="decisions__actions">
-        <a class="button button--primary" href={`${base}decisions/`}>All {decisions.length} decisions</a>
-      </div>
-    </div>
-  </section>
-
   <!-- ============================================================ GET STARTED -->
-  <section id="get-started" class="section">
+  <section id="get-started" class="section section--band">
     <div class="container">
       <div class="section-head">
         <h2>Get started</h2>
@@ -254,7 +229,7 @@ const featuredDecisions = ['calculation', 'privacy', 'architecture']
   </section>
 
   <!-- ============================================================ CONTRIBUTE -->
-  <section id="contribute" class="section section--band">
+  <section id="contribute" class="section">
     <div class="container">
       <div class="section-head">
         <h2>Contribute</h2>
@@ -306,9 +281,6 @@ const featuredDecisions = ['calculation', 'privacy', 'architecture']
   .tour__row:nth-child(even) :global(.shot) { order: 2; }
   .tour__row .block h3 { margin-bottom: 10px; }
   .tour__row .block p { font-size: 17px; }
-
-  /* ---- decisions ---- */
-  .decisions__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: var(--space-lg); }
 
   /* ---- get started ---- */
   .start .card { display: flex; flex-direction: column; gap: 14px; }
