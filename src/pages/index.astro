@@ -200,42 +200,6 @@ const featuredDecisions = ['calculation', 'privacy', 'architecture']
     </div>
   </section>
 
-  <!-- ============================================================ CONCEPTS -->
-  <section id="concepts" class="section section--band">
-    <div class="container">
-      <div class="section-head">
-        <h2>Concepts</h2>
-        <p class="lede">The numbers, and what stands behind them. Details live in the repositories.</p>
-      </div>
-      <div class="grid grid--3 concepts">
-        <div class="block">
-          <h3>Four token types</h3>
-          <p>Input, output, cache write, cache read. All four are stored; only input and output form the headline total, because cache reads outnumber everything else by an order of magnitude.</p>
-        </div>
-        <div class="block">
-          <h3>Cost in USD</h3>
-          <p>A price table per model and token type, applied at ingest. Estimates for trend visibility, not billing. Copilot is approximated at one cent per AI unit.</p>
-        </div>
-        <div class="block">
-          <h3>CO₂: 840 g per million output-equivalent tokens</h3>
-          <p>Derived from Jegham et al. for Claude 3.7 Sonnet; input weighted at 1/20 of output, cache reads at 1 %. An order-of-magnitude estimate, not GHG accounting. <a href="https://github.com/neuland/tokendashboard-backend#derivation-of-co%E2%82%82-factors-for-claude" rel="noopener">Derivation</a></p>
-        </div>
-        <div class="block">
-          <h3>Anonymous by construction</h3>
-          <p>Usage data carries no identifier at all. The only UUID is random, per installation, never derived from a name, and used solely to count active installations. No prompt content, no authentication, VPN only. <a href="https://github.com/neuland/tokendashboard-backend/blob/main/SECURITY.md" rel="noopener">Security model</a></p>
-        </div>
-        <div class="block">
-          <h3>Store-and-forward</h3>
-          <p>Plugins queue locally and flush in batches at session boundaries. Transient errors retry; entries expire after 30 days. <a href="https://github.com/neuland/tokendashboard-plugin-claude/tree/main/docs/decisions" rel="noopener">Plugin ADRs</a></p>
-        </div>
-        <div class="block">
-          <h3>Self-update, explicit trust</h3>
-          <p>Once a day each plugin fetches its updater from a URL the operator chose at install time. HTTPS only, no redirects. <a href="https://github.com/neuland/tokendashboard-backend/blob/main/docs/decisions.md" rel="noopener">Decision log</a></p>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- ============================================================ DECISIONS -->
   <section id="decisions" class="section section--ink">
     <div class="container">
@@ -342,10 +306,6 @@ const featuredDecisions = ['calculation', 'privacy', 'architecture']
   .tour__row:nth-child(even) :global(.shot) { order: 2; }
   .tour__row .block h3 { margin-bottom: 10px; }
   .tour__row .block p { font-size: 17px; }
-
-  /* ---- concepts ---- */
-  .concepts { row-gap: var(--space-lg); }
-  .concepts .block p a { white-space: nowrap; }
 
   /* ---- decisions ---- */
   .decisions__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: var(--space-lg); }
