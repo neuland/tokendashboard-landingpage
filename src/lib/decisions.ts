@@ -9,13 +9,17 @@ export const AREAS: { id: Area; label: string; lede: string }[] = [
 export const AREA_LABEL: Record<Area, string> = Object.fromEntries(AREAS.map((a) => [a.id, a.label])) as Record<Area, string>;
 
 /**
- * Where the decisions come from: the backend repository's decision log, read at build time.
+ * Where the decisions come from: the backend's decision log in the tokendashboard repository
+ * (backend/docs/decisions.md), read at build time. Not the repository-wide docs/decisions.md
+ * at the root, which only records decisions about the repository itself.
  * `DECISIONS_SOURCE` may point at another URL or at a local file (for previewing an
- * uncommitted log): DECISIONS_SOURCE=../tokendashboard-backend/docs/decisions.md npm run dev
+ * uncommitted log): DECISIONS_SOURCE=../tokendashboard/backend/docs/decisions.md npm run dev
  */
-export const DECISIONS_REPO = 'https://github.com/neuland/tokendashboard-backend';
-export const DECISIONS_LOG_URL = `${DECISIONS_REPO}/blob/main/docs/decisions.md`;
-export const DECISIONS_DEFAULT_SOURCE = 'https://raw.githubusercontent.com/neuland/tokendashboard-backend/main/docs/decisions.md';
+export const DECISIONS_REPO = 'https://github.com/neuland/tokendashboard';
+/** Folder of the log inside the repository; relative links in the log resolve from here. */
+export const DECISIONS_DIR = 'backend/docs';
+export const DECISIONS_LOG_URL = `${DECISIONS_REPO}/blob/main/${DECISIONS_DIR}/decisions.md`;
+export const DECISIONS_DEFAULT_SOURCE = `https://raw.githubusercontent.com/neuland/tokendashboard/main/${DECISIONS_DIR}/decisions.md`;
 
 /**
  * Classifies a decision into an area. Explicit assignments by number first (the log is an

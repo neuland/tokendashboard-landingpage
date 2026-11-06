@@ -1,18 +1,17 @@
 # Token & CO₂ Dashboard — website
 
 The central documentation site for the neuland Token & CO₂ Dashboard, published on GitHub
-Pages at <https://tokendashboard.neuland-bfi.de/>. It explains how the five repositories
-fit together, walks through the dashboard with screenshots, documents the concepts behind
-the numbers, and records the domain decisions behind them — how things are calculated, what
-is left out, what is stored — and why.
+Pages at <https://tokendashboard.neuland-bfi.de/>. It explains how the components fit
+together, shows how to try the dashboard locally, walks through it with screenshots,
+documents the concepts behind the numbers, and records the domain decisions behind them —
+how things are calculated, what is left out, what is stored — and why.
 
 The individual repositories keep their own READMEs and decision records; this site links
 to them rather than duplicating them.
 
 | Repository | What it is |
 |---|---|
-| [tokendashboard-frontend](https://github.com/neuland/tokendashboard-frontend) | The dashboard (Astro + React) |
-| [tokendashboard-backend](https://github.com/neuland/tokendashboard-backend) | Ingest, pricing, CO₂ estimation, aggregation (Kotlin/Ktor + Postgres) |
+| [tokendashboard](https://github.com/neuland/tokendashboard) | Backend in `backend/` (ingest, pricing, CO₂ estimation, aggregation; Kotlin/Ktor + Postgres) and the dashboard in `frontend/` (Astro + React) |
 | [tokendashboard-plugin-claude](https://github.com/neuland/tokendashboard-plugin-claude) | Claude Code hook plugin |
 | [tokendashboard-plugin-copilot](https://github.com/neuland/tokendashboard-plugin-copilot) | GitHub Copilot CLI hook plugin |
 | [tokendashboard-plugin-opencode](https://github.com/neuland/tokendashboard-plugin-opencode) | OpenCode plugin |
@@ -49,7 +48,7 @@ shared.
 
 ```
 src/
-├── components/   Screenshot, RepoCard, DecisionCard, ArchitectureDiagram
+├── components/   Screenshot, RepoCard, DecisionCard, ArchitectureDiagram, CodeBlock
 ├── layouts/      Layout.astro – page shell, header, footer, meta tags
 ├── lib/          site.ts (names, links), repos.ts (repository catalogue), decisions.ts (source, areas)
 ├── content.config.ts   loader that reads the backend's decision log at build time
@@ -62,9 +61,10 @@ public/
 
 ## Decisions
 
-The decisions section is **generated at build time from the backend repository's decision
-log**, `docs/decisions.md` on the `main` branch of
-[neuland/tokendashboard-backend](https://github.com/neuland/tokendashboard-backend). Nothing is
+The decisions section is **generated at build time from the backend's decision log**,
+`backend/docs/decisions.md` on the `main` branch of
+[neuland/tokendashboard](https://github.com/neuland/tokendashboard) (not the repository-wide
+`docs/decisions.md` at its root). Nothing is
 duplicated here: a decision appears on the site once it is in that log, with the log's own
 text. The loader lives in `src/content.config.ts`; it splits the log at its `## N. Title`
 headings, takes the first paragraph as the card summary, and assigns each entry to one of the
@@ -75,7 +75,7 @@ in the wrong area).
 To preview a log that is not on `main` yet, point the build at a local file:
 
 ```bash
-DECISIONS_SOURCE=../tokendashboard-backend/docs/decisions.md npm run dev
+DECISIONS_SOURCE=../tokendashboard/backend/docs/decisions.md npm run dev
 ```
 
 The build fails if the log cannot be loaded, so a network problem never publishes an empty
@@ -109,5 +109,5 @@ SITE_URL=https://<owner>.github.io SITE_BASE=/<repo>/ npm run build
 ## License
 
 All rights reserved — see [LICENSE](LICENSE). The source is public for transparency, not for
-reuse. The dashboard itself (frontend, backend, plugins) is MIT-licensed in its own
+reuse. The dashboard itself (backend, frontend, plugins) is MIT-licensed in its own
 repositories. The neuland name and logo are covered by [TRADEMARKS.md](TRADEMARKS.md).

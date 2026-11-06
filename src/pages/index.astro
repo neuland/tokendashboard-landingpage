@@ -3,7 +3,8 @@ import Layout from '~/layouts/Layout.astro';
 import Screenshot from '~/components/Screenshot.astro';
 import RepoCard from '~/components/RepoCard.astro';
 import ArchitectureDiagram from '~/components/ArchitectureDiagram.astro';
-import { REPOS, PLUGINS } from '~/lib/repos';
+import CodeBlock from '~/components/CodeBlock.astro';
+import { REPOS, PLUGINS, MAIN_REPO } from '~/lib/repos';
 import { SITE } from '~/lib/site';
 ---
 
@@ -19,12 +20,13 @@ import { SITE } from '~/lib/site';
         </p>
         <div class="hero__actions">
           <a class="button button--primary" href="#how-it-works">How it works</a>
+          <a class="button button--ghost" href="#try-it">Try it</a>
           <a class="button button--ghost" href={SITE.github} rel="noopener">GitHub</a>
         </div>
       </div>
       <div class="hero__shot">
-        <Screenshot src="overview-full.png" width={2560} height={4008}
-          alt="The dashboard's overview page: company-wide totals for tokens, CO₂ and cost, a trend chart by provider and a comparison table." />
+        <Screenshot src="overview-full.png" width={2560} height={2340}
+          alt="The dashboard's overview page: key figures for tokens, CO₂ and cost, a history chart by provider and a table comparing the providers." />
       </div>
     </div>
   </section>
@@ -91,7 +93,7 @@ import { SITE } from '~/lib/site';
     <div class="container">
       <div class="section-head">
         <h2>Components</h2>
-        <p class="lede">Five repositories. They meet at the backend's ingest and query endpoints.</p>
+        <p class="lede">Backend and frontend share one repository; each plugin has its own. They meet at the backend's ingest and query endpoints.</p>
       </div>
       <div class="grid grid--2 components">
         {REPOS.filter((r) => r.kind !== 'plugin').map((repo) => <RepoCard repo={repo} />)}
@@ -132,15 +134,15 @@ import { SITE } from '~/lib/site';
       </div>
       <div class="tour">
         <div class="tour__row">
-          <Screenshot src="overview-kpis.png" width={2320} height={280}
-            alt="Three KPI cards: Total tokens 338.6 M, Total CO₂ 64.5 kg, Total cost 5,130.24 $." />
+          <Screenshot src="overview-kpis.png" width={1960} height={308}
+            alt="Three key figures: Total tokens 211.8 M, Total CO₂ 165.5 kg, Total cost 5,461.94 $." />
           <div class="block">
             <h3>Company-wide totals</h3>
             <p>Tokens, estimated CO₂ and estimated cost for the selected period. Total tokens counts input and output only — cache tokens are shown separately so they don't drown the trend.</p>
           </div>
         </div>
         <div class="tour__row">
-          <Screenshot src="overview-history-chart.png" width={2320} height={846}
+          <Screenshot src="overview-history-chart.png" width={1960} height={970}
             alt="Stacked bar chart of daily token usage, one colour per provider, with weekends shaded." />
           <div class="block">
             <h3>Trend by provider</h3>
@@ -149,26 +151,26 @@ import { SITE } from '~/lib/site';
         </div>
         <div class="tour__row">
           <Screenshot src="overview-range-picker.png" width={2560} height={1800}
-            alt="The date range picker, open, with groups To date, Previous period, Last days and a custom range." />
+            alt="The date range picker, open, with groups To date, Previous period, Last days, More and a custom range." />
           <div class="block">
             <h3>Shareable time ranges</h3>
             <p>Presets like "this month" or "last 30 days" live in the URL, so a bookmarked "this week" still means this week next Monday.</p>
           </div>
         </div>
         <div class="tour__row">
-          <Screenshot src="provider-claude-plugin-panel.png" width={2320} height={412}
-            alt="Plugin panel showing 40 active plugin installations and a copyable npx install command." />
+          <Screenshot src="provider-claude-plugin-panel.png" width={1776} height={696}
+            alt="Plugin tracking card showing 42 active installations in the last four weeks and a copyable npx install command." />
           <div class="block">
             <h3>Installations and the install command</h3>
             <p>Each provider page shows how many plugin installations reported in the last four weeks, and the install command with the operator's URLs filled in. Installations are counted, never people.</p>
           </div>
         </div>
         <div class="tour__row">
-          <Screenshot src="provider-claude-model-chart.png" width={2320} height={1348}
-            alt="Stacked bars per model family and a table breaking down tokens, CO₂ and cost per model." />
+          <Screenshot src="provider-claude-model-chart.png" width={1776} height={734}
+            alt="History chart on the Claude page in the model breakdown view: daily stacked bars per model family, weekends shaded." />
           <div class="block">
             <h3>By model and token type</h3>
-            <p>Input, output, cache write and cache read per model family — where cache reads become visible in their true proportion.</p>
+            <p>Each provider page splits the history by model family. A token-type card and the model table add input, output, cache write and cache read — where cache reads become visible in their true proportion.</p>
           </div>
         </div>
         <div class="tour__row">
@@ -191,12 +193,51 @@ import { SITE } from '~/lib/site';
     </div>
   </section>
 
-  <!-- ============================================================ GET STARTED -->
-  <section id="get-started" class="section section--band">
+  <!-- ============================================================ TRY IT -->
+  <section id="try-it" class="section section--band">
     <div class="container">
       <div class="section-head">
-        <h2>Get started</h2>
-        <p class="lede">Someone operates the backend and frontend. Every developer installs a plugin.</p>
+        <h2>Try it out</h2>
+        <p class="lede">Two commands, and the dashboard runs on your machine.</p>
+      </div>
+      <div class="grid grid--2 try">
+        <div class="card">
+          <span class="pill pill--accent">Prebuilt images</span>
+          <h3>Try it right away</h3>
+          <p>All you need is Docker with Docker Compose 2.23 or newer. No source code, no build, no configuration.</p>
+          <CodeBlock label="commands" code={`curl -LO https://github.com/neuland/tokendashboard/releases/latest/download/docker-compose.yml
+docker compose up`} />
+          <p>
+            The dashboard and its database then run on <a href="http://localhost:8088" rel="nofollow">localhost:8088</a>.
+            Every release ships images for amd64 and arm64, so they run on Macs with Apple silicon too.
+          </p>
+          <p class="try__note">Port, database password and version can be changed through environment variables.</p>
+        </div>
+        <div class="card">
+          <span class="pill pill--ink">From source</span>
+          <h3>Build it yourself</h3>
+          <p>In a clone of the repository:</p>
+          <CodeBlock code="docker compose up --build" />
+          <p>That's also how your company's name gets into the sidebar. It is baked in at build time; the prebuilt images show "neuland".</p>
+          <CodeBlock code={`PUBLIC_COMPANY_NAME="My Company" docker compose up --build`} />
+        </div>
+      </div>
+      <p class="try__next">
+        <strong>Then install a plugin.</strong> Without one, the dashboard stays empty. It shows the
+        install command for your instance itself — under "Install plugins" in the navigation or via
+        "Install plugin" on a provider page.
+        <a href={`${MAIN_REPO.url}#try-it-out`} rel="noopener">More in the README</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================ ROLL IT OUT -->
+  <!-- The id stays "get-started" so existing links to the section keep working. -->
+  <section id="get-started" class="section">
+    <div class="container">
+      <div class="section-head">
+        <h2>Roll it out</h2>
+        <p class="lede">For the whole company: someone runs backend and frontend, every developer installs a plugin.</p>
       </div>
       <div class="grid grid--2 start">
         <div class="card">
@@ -208,9 +249,9 @@ import { SITE } from '~/lib/site';
             <li>Put both behind your VPN — there is no authentication by design.</li>
           </ol>
           <p class="start__links">
-            <a href="https://github.com/neuland/tokendashboard-backend#readme" rel="noopener">Backend README</a> ·
-            <a href="https://github.com/neuland/tokendashboard-frontend#readme" rel="noopener">Frontend README</a> ·
-            <a href="https://github.com/neuland/tokendashboard-backend/tree/main/examples" rel="noopener">Deployment examples</a>
+            <a href={`${MAIN_REPO.url}/blob/main/backend/README.md`} rel="noopener">Backend README</a> ·
+            <a href={`${MAIN_REPO.url}/blob/main/frontend/README.md`} rel="noopener">Frontend README</a> ·
+            <a href={`${MAIN_REPO.url}/tree/main/backend/examples`} rel="noopener">Deployment examples</a>
           </p>
         </div>
         <div class="card">
@@ -220,7 +261,7 @@ import { SITE } from '~/lib/site';
           {PLUGINS.map((p) => (
             <div class="start__cmd">
               <span class="start__cmd-label" style={`--c: var(--provider-${p.provider})`}><i aria-hidden="true"></i>{p.title}</span>
-              <pre><code>{p.install}</code></pre>
+              <CodeBlock code={p.install!} label={`${p.title} install command`} />
             </div>
           ))}
         </div>
@@ -229,14 +270,14 @@ import { SITE } from '~/lib/site';
   </section>
 
   <!-- ============================================================ CONTRIBUTE -->
-  <section id="contribute" class="section">
+  <section id="contribute" class="section section--band">
     <div class="container">
       <div class="section-head">
         <h2>Contribute</h2>
         <p class="lede">Bugs and features go to the repository they concern.</p>
       </div>
       <ul class="contribute">
-        {REPOS.map((r) => (
+        {[MAIN_REPO, ...PLUGINS].map((r) => (
           <li>
             <a href={r.url} rel="noopener"><code>{r.name}</code></a>
             <span>{r.tagline}</span>
@@ -282,7 +323,15 @@ import { SITE } from '~/lib/site';
   .tour__row .block h3 { margin-bottom: 10px; }
   .tour__row .block p { font-size: 17px; }
 
-  /* ---- get started ---- */
+  /* ---- try it ---- */
+  .try .card { display: flex; flex-direction: column; gap: 14px; }
+  .try .card > .pill { align-self: flex-start; }
+  .try .card p { margin: 0; }
+  .try .card .try__note { font-size: var(--t-small); color: var(--ink-4); }
+  .try__next { margin-top: var(--space-md); max-width: 760px; color: var(--ink-3); }
+  .try__next strong { color: var(--ink); }
+
+  /* ---- roll it out ---- */
   .start .card { display: flex; flex-direction: column; gap: 14px; }
   .start .card > .pill { align-self: flex-start; }
   .start ol { margin: 0; padding-left: 1.2em; color: var(--ink-3); font-size: 16px; }
@@ -291,7 +340,7 @@ import { SITE } from '~/lib/site';
   .start__cmd { display: grid; gap: 8px; }
   .start__cmd-label { display: inline-flex; align-items: center; gap: 8px; font-size: var(--t-micro); font-weight: 600; color: var(--ink-2); }
   .start__cmd-label i { width: 8px; height: 8px; border-radius: 50%; background: var(--c, var(--ink-3)); }
-  .start__cmd pre { font-size: 12px; }
+  .start__cmd :global(pre) { font-size: 12px; }
 
   /* ---- contribute ---- */
   .contribute { list-style: none; margin: 0; padding: 0; display: grid; }

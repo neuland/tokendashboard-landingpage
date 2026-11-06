@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
-  # The decisions section is read from the backend repository at build time, so rebuild
+  # The decisions section is read from the tokendashboard repository at build time, so rebuild
   # daily to pick up changes there without a push here.
   schedule:
     - cron: '0 5 * * *'

@@ -1,0 +1,49 @@
+---
+/**
+ * A command in a dark code block with a copy button. Without JavaScript or a clipboard
+ * API the button stays hidden and the block is plain, selectable text.
+ */
+interface Props {
+  code: string;
+  /** What is copied, for the button's accessible name. */
+  label?: string;
+}
+const { code, label = 'command' } = Astro.props;
+---
+
+<div class="codeblock">
+  <pre><code>{code}</code></pre>
+  <button class="codeblock__copy" type="button" aria-label={`Copy ${label}`} data-copy={code} hidden>Copy</button>
+</div>
+
+<script>
+  if (navigator.clipboard) {
+    for (const button of document.querySelectorAll<HTMLButtonElement>('.codeblock__copy')) {
+      button.hidden = false;
+      button.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(button.dataset.copy ?? '');
+          button.textContent = 'Copied';
+        } catch {
+          button.textContent = 'Select and copy';
+        }
+        setTimeout(() => { button.textContent = 'Copy'; }, 1800);
+      });
+    }
+  }
+</script>
+
+<style>
+  /* The dark box is the wrapper; only the pre scrolls, so long lines never run under the button. */
+  .codeblock { display: flex; align-items: flex-start; min-width: 0; background: var(--bg-code); border-radius: var(--radius); }
+  .codeblock pre { flex: 1; min-width: 0; background: none; border-radius: 0; }
+  .codeblock__copy {
+    flex: none; margin: 12px 12px 0 0;
+    padding: 4px 10px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.06); color: rgba(255, 255, 255, 0.8);
+    font: 600 12px/1.4 var(--font-sans); cursor: pointer;
+    transition: background var(--ease), border-color var(--ease), color var(--ease);
+  }
+  .codeblock__copy:hover { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.4); color: #fff; }
+  .codeblock__copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>

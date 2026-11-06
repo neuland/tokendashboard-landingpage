@@ -20,31 +20,38 @@ export interface Repo {
 
 const GH = 'https://github.com/neuland';
 
+/** Backend and frontend share this repository, in the folders backend/ and frontend/. Each plugin has its own. */
+export const MAIN_REPO = {
+  name: 'tokendashboard',
+  url: `${GH}/tokendashboard`,
+  tagline: 'Backend and frontend — receives usage, prices it and shows it in the browser.',
+} as const;
+
 export const REPOS: Repo[] = [
   {
     id: 'frontend',
     kind: 'frontend',
-    name: 'tokendashboard-frontend',
+    name: 'tokendashboard/frontend',
     title: 'Frontend',
     tagline: 'The dashboard people open in the browser.',
     description:
       'Static Astro site with React islands: company-wide KPIs, provider comparison, history charts and one page per provider, broken down by model and token type. German and English.',
     stack: ['Astro 7', 'React 18', 'Recharts', 'TypeScript', 'nginx'],
-    url: `${GH}/tokendashboard-frontend`,
-    readme: `${GH}/tokendashboard-frontend#readme`,
+    url: `${MAIN_REPO.url}/tree/main/frontend`,
+    readme: `${MAIN_REPO.url}/blob/main/frontend/README.md`,
   },
   {
     id: 'backend',
     kind: 'backend',
-    name: 'tokendashboard-backend',
+    name: 'tokendashboard/backend',
     title: 'Backend',
     tagline: 'Receives usage, prices it, estimates CO₂, aggregates.',
     description:
       'Kotlin/Ktor service with Postgres. Plugins push raw token counts; the backend deduplicates, applies prices and CO₂ factors and serves aggregates and time series. It never polls a provider.',
     stack: ['Kotlin', 'Ktor', 'PostgreSQL', 'Gradle', 'Kotest'],
-    url: `${GH}/tokendashboard-backend`,
-    readme: `${GH}/tokendashboard-backend#readme`,
-    decisions: `${GH}/tokendashboard-backend/blob/main/docs/decisions.md`,
+    url: `${MAIN_REPO.url}/tree/main/backend`,
+    readme: `${MAIN_REPO.url}/blob/main/backend/README.md`,
+    decisions: `${MAIN_REPO.url}/blob/main/backend/docs/decisions.md`,
   },
   {
     id: 'plugin-claude',

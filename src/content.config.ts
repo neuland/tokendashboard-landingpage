@@ -2,10 +2,11 @@ import { readFile } from 'node:fs/promises';
 import { defineCollection } from 'astro:content';
 import { z } from 'astro:schema';
 import type { Loader } from 'astro/loaders';
-import { classify, DECISIONS_DEFAULT_SOURCE, DECISIONS_LOG_URL, DECISIONS_REPO } from './lib/decisions';
+import { posix } from 'node:path';
+import { classify, DECISIONS_DEFAULT_SOURCE, DECISIONS_DIR, DECISIONS_LOG_URL, DECISIONS_REPO } from './lib/decisions';
 
-// The decisions section is generated from the backend repository's decision log
-// (docs/decisions.md on main), read at build time. Nothing is duplicated here: a decision
+// The decisions section is generated from the backend's decision log
+// (backend/docs/decisions.md on main of neuland/tokendashboard), read at build time. Nothing is duplicated here: a decision
 // shows up on the site once it is in that log. See src/lib/decisions.ts for the source URL
 // and the DECISIONS_SOURCE override.
 
@@ -78,14 +79,14 @@ function summarize(body: string, max = 200): string {
   return `${plain.slice(0, max).replace(/\s+\S*$/, '')} …`;
 }
 
-/** The log lives in docs/, so relative links resolve from there; bare "README.md" mentions become links. */
+/** The log lives in backend/docs/, so relative links resolve from there; bare "README.md" mentions mean the backend's README. */
 function absolutizeLinks(body: string): string {
   return body
     .replace(/\]\((?!https?:\/\/|#|mailto:)([^)]+)\)/g, (_m, path: string) => {
-      const target = path.startsWith('../') ? path.slice(3) : `docs/${path}`;
+      const target = posix.normalize(posix.join(DECISIONS_DIR, path));
       return `](${DECISIONS_REPO}/blob/main/${target})`;
     })
-    .replace(/(?<![\[(\/\w])README\.md/g, `[README.md](${DECISIONS_REPO}#readme)`);
+    .replace(/(?<![\[(\/\w])README\.md/g, `[README.md](${DECISIONS_REPO}/blob/main/${posix.dirname(DECISIONS_DIR)}/README.md)`);
 }
 
 async function readSource(source: string): Promise<string> {
