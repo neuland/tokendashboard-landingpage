@@ -6,7 +6,6 @@ export const SITE = {
     'Central documentation for the neuland Token & CO₂ Dashboard: an open-source, self-hosted system that measures company-wide token usage, estimated cost and estimated CO₂ emissions of AI coding agents such as Claude Code, GitHub Copilot and OpenCode.',
   org: 'neuland - Büro für Informatik',
   orgUrl: 'https://neuland-bfi.de',
-  imprintUrl: 'https://www.neuland-bfi.de/de/impressum',
   github: 'https://github.com/neuland',
 } as const;
 

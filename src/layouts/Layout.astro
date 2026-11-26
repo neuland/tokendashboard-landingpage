@@ -71,11 +71,8 @@ const navItems = NAV.map((n) => ({ ...n, href: anchorNav ? n.href : `${base}${n.
       <div class="container footer-inner">
         <div class="footer-brand">
           <img src={`${base}images/logo-mark.svg`} alt="" width="24" height="24" />
-          <span>Token &amp; <span class="brand-co2">CO₂</span> Dashboard · <a class="footer-neuland" href={SITE.orgUrl} rel="noopener">a neuland initiative</a></span>
+          <span>Token &amp; <span class="brand-co2">CO₂</span> Dashboard · <a class="footer-neuland" href={SITE.orgUrl} rel="noopener">a neuland initiative</a> · <a class="footer-imprint" href={`${base}imprint/`}>Imprint</a></span>
         </div>
-        <ul class="footer-links">
-          <li><a href={SITE.imprintUrl} rel="noopener">Imprint</a></li>
-        </ul>
         <p class="footer-note">Screenshots show synthetic demo data, not real usage.</p>
       </div>
     </footer>
@@ -105,6 +102,8 @@ const navItems = NAV.map((n) => ({ ...n, href: anchorNav ? n.href : `${base}${n.
   .footer-brand a { font-weight: 500; }
   .footer-neuland { color: var(--neuland); text-decoration-color: rgba(255, 90, 85, 0.4); }
   .footer-neuland:hover { color: var(--neuland); text-decoration-color: currentColor; }
+  .footer-imprint { color: var(--ink-3); text-decoration: none; }
+  .footer-imprint:hover { color: var(--ink); text-decoration: underline; }
   .footer-links { display: flex; flex-wrap: wrap; gap: 6px 22px; list-style: none; margin: 0; padding: 0; }
   .footer-links li { margin: 0; }
   .footer-links a { color: var(--ink-3); text-decoration: none; }
